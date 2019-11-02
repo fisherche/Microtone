@@ -3,12 +3,13 @@ from mido import Message
 import numpy as np
 from multiprocessing import Process, Pipe
 from enum import Enum
-from launchpad import Launchpad
-from launchpadLayout import LaunchpadLayout
+import launchpad
+import launchpadLayout
 
 
 class midos:
 	def __init__(self):
+		self.openMIDIlst = self.scanIO()
 		pass
 	#default backend, written in C++, convenient for that transformation
 	mido.set_backend('mido.backends.rtmidi')
@@ -69,7 +70,7 @@ class midos:
 		if key in range(104,112):
 			return [176, key, color]
 
-	def scanIO():
+	def scanIO(self):
 		inputs = mido.get_input_names()
 		outputs = mido.get_output_names()
 		print("input names: ", inputs)
@@ -79,9 +80,11 @@ class midos:
 			string = "open " + i + "? Type anything for yes, or just hit enter for no"
 			x = input(string)
 			if x:
-				newDevice = Launchpad(i)
+				newDevice = launchpad.Launchpad(i)
 				openMIDIlst.append(newDevice)
-		LaunchpadLayout(openMIDIlst)
+		self.lpl = launchpadLayout.LaunchpadLayout(openMIDIlst)
+		self.lpl.assignAsLayout(openMIDIlst) #to facilitate later changes in layouts
+		self.setupPorts()	#instance variable assigned to a Launchpad
 		return openMIDIlst
 	# def scanIO(self):
 	# 	inputs = mido.get_input_names()
@@ -112,23 +115,16 @@ class midos:
 
 	def setupPorts(self):
 		j = 0
-		for i in self.lpl.lpObjLst:
-			callbackName = "self.incomingMessageParser"+str(j)
-			callb = self.lpl.hardCodedFunctions[callbackName]
-
-			#lambda does not seem to work
-			#a = lambda msg: self.toMIDIout(i.name, msg.bytes())
-			#i.portIn = mido.open_input(i.name, callback=a)
-
-			portIn = mido.open_input(i.name, callback=self.lpl.incomingMessageParser0)
-			portOut = mido.open_output(i.name)
+		for i in self.lpl.objLst:
+			i.portIn = mido.open_input(i.name, callback=i.incomingMessageParser)
+			i.portOut = mido.open_output(i.name)
 			j += 1
 		return
 
-	port = mido.open_input(mido.get_input_names()[1], callback=LaunchpadLayout.incomingMessageParser0)
-	#portout = mido.open_output(mido.get_output_names()[1])
-	port1 = mido.open_input(mido.get_input_names()[2], callback=LaunchpadLayout.incomingMessageParser0)
-	#portout1 = mido.open_output(mido.get_output_names()[2])
+	# port = mido.open_input(mido.get_input_names()[1], callback=LaunchpadLayout.incomingMessageParser0)
+	# #portout = mido.open_output(mido.get_output_names()[1])
+	# port1 = mido.open_input(mido.get_input_names()[2], callback=LaunchpadLayout.incomingMessageParser0)
+	# #portout1 = mido.open_output(mido.get_output_names()[2])
 
 
 
@@ -140,12 +136,11 @@ if __name__ == '__main__':
 	#callback listens without multithreading ?
 	#openMIDI = midos.scanIO()
 	m = midos()
+	m.scanIO()
 	#openMIDI = m.scanIO()
-	openMIDI = midos.scanIO()
 	parent_conn, child_conn = Pipe()
 	p = Process(target=midos.recv_MIDI, args=(child_conn,))
 	p.start()
-
 
 	#portout.send_message(updateAllLED(127))
 	#ledall = mido.Message.from_bytes(updateAllLED(125))

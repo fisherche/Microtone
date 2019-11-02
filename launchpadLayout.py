@@ -1,60 +1,48 @@
-from launchpad import Launchpad
+import launchpad
 import FromScala
 import mido
 from fractions import Fraction
 class LaunchpadLayout:
 	def __init__(self,lpLst):
-		#main launchpad is lpObjLst[0]
-		self.lpObjLst = lpLst
-		self.lpObjDict = self.populatelpObjDict()
+		#main launchpad is objLst[0]
+		self.objLst = lpLst
+		self.objDict = self.populateObjDict()
 		self.controlButtons = {}
-		self.lpMapLookup = [{} for ea in self.lpObjLst]
-		self.mapIncomingToKeyboardLayout()
+		self.lpMapLookup = [{} for ea in self.objLst]
+		self.mapIncomingToKeyboardLayout()#replace by self.lpMapLookup = mapIncomingToKeyboardLayout()
 		self.scale = None
 		self.scaleDescr = None
 		self.parent_conn = None
-		self.hardCodedFunctions = {'self.incomingMessageParser0': self.incomingMessageParser0,
-		'self.incomingMessageParser1': self.incomingMessageParser1}
+		# self.hardCodedFunctions = {'self.incomingMessageParser0': self.incomingMessageParser0,
+		# 'self.incomingMessageParser1': self.incomingMessageParser1}
+		#we also have self.mediator
 		#self.setupPorts()
 
 
 	
-	def populatelpObjDict(self):
-		lpObjDict = {}
-		for i in range(len(self.lpObjLst)):
-			lpObjDict[self.lpObjLst[i].name] = i
-		return lpObjDict
-	def incomingMessageParser0( message):
-		#change
-		print("0", message)
+	def populateObjDict(self):
+		objDict = {}
+		for i in range(len(self.objLst)):
+			objDict[self.objLst[i].name] = i
+		return objDict
 
-	def incomingMessageParser1(self,message):
-		print("1", message)
+	def parseIncomingMessage(self,senderName,message):
+		print(senderName,message)
+		messageBytes = message.bytes()
+		lp = self.objDict[senderName]
+		print("name", senderName, "lp", lp)
+		outNote = self.lpMapLookup[lp][messageBytes[1]]
+		print(senderName,messageBytes[1]," ",outNote)
 
-	
-	def setupPorts(self):
-		j = 0
-		for i in self.lpObjLst:
-			callbackName = "self.incomingMessageParser"+str(j)
-			callb = self.hardCodedFunctions[callbackName]
 
-			#lambda does not seem to work
-			#a = lambda msg: self.toMIDIout(i.name, msg.bytes())
-			#i.portIn = mido.open_input(i.name, callback=a)
 
-			i.portIn = mido.open_input(i.name, callback=self.incomingMessageParser0)
-			i.portOut = mido.open_output(i.name)
-			j += 1
+
+	#TODO: change dictionary/list population to reflect this
+	def assignAsLayout(self,lpObjects):
+		for lp in lpObjects:
+			lp.layout = self
 		return
 
-
-	def toMIDIout(self,name,messageBytes):
-		byte2 = messageBytes[1]
-		lp = self.lpObjDict[name]
-		print("name",name,"lp", lp)
-		outNote = self.lpMapLookup[lp][byte2]
-		print(name,byte2," ",outNote)
-		#print(messageBytes)
 
 
 	def recv_msg(self,msg):
@@ -68,11 +56,11 @@ class LaunchpadLayout:
 	#populates lpMapLookup
 	def mapIncomingToKeyboardLayout(self):
 		#from left to right in lpLst
-		mainLp = self.lpObjLst[0]
+		mainLp = self.objLst[0]
 		MIDInoteCounter = 0
 		for row in range(len(mainLp.MIDInoteArr)-1,-1,-1):
-			for lp in range(len(self.lpObjLst)):
-				for sequentialNote in self.lpObjLst[lp].MIDInoteArr[row]:
+			for lp in range(len(self.objLst)):
+				for sequentialNote in self.objLst[lp].MIDInoteArr[row]:
 					if (lp == mainLp) and (sequentialNote >= 121):
 						self.lpMapLookup[lp][sequentialNote] = None
 					else:
@@ -141,7 +129,7 @@ class LaunchpadLayout:
 			string = "open " + i + "? Type anything for yes, or just hit enter for no"
 			x = input(string)
 			if x:
-				newDevice = Launchpad(i)
+				newDevice = launchpad.Launchpad(i)
 				openMIDIlst.append(newDevice)
 		#removed circular ref
 		#LaunchpadLayout()
