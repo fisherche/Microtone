@@ -5,11 +5,15 @@ from multiprocessing import Process, Pipe
 from enum import Enum
 import launchpad
 import launchpadLayout
+import FromScala
 
 
 class midos:
 	def __init__(self):
-		self.openMIDIlst = self.scanIO()
+		self.openmidiinputs = self.scanIO()
+		self.lpl.spanRangeByIntervals(FromScala.readSCL('twelveEqual.scl'))
+		self.lpl.mapLinearNumbersTo2DLattice(5)
+		self.lpl.openVirtualOuts()
 		pass
 	#default backend, written in C++, convenient for that transformation
 	mido.set_backend('mido.backends.rtmidi')
@@ -54,7 +58,8 @@ class midos:
 	#send message 146, Velocity 1, Velocity 2,
 		
 	def mapScale(scale):
-		pass
+		
+		raise NotImplementedError
 
 	def setDutyCycle(numerator=1,denominator=8):
 		if numerator < 9:
@@ -75,31 +80,31 @@ class midos:
 		outputs = mido.get_output_names()
 		print("input names: ", inputs)
 		print("output names: ", outputs)
-		openMIDIlst = []
+		openmidiinputs = []
 		for i in inputs:
 			string = "open " + i + "? Type anything for yes, or just hit enter for no"
 			x = input(string)
 			if x:
 				newDevice = launchpad.Launchpad(i)
-				openMIDIlst.append(newDevice)
-		self.lpl = launchpadLayout.LaunchpadLayout(openMIDIlst)
-		self.lpl.assignAsLayout(openMIDIlst) #to facilitate later changes in layouts
+				openmidiinputs.append(newDevice)
+		self.lpl = launchpadLayout.LaunchpadLayout(openmidiinputs)
+		self.lpl.assignAsLayout(openmidiinputs) #to facilitate later changes in layouts
 		self.setupPorts()	#instance variable assigned to a Launchpad
-		return openMIDIlst
+		return openmidiinputs
 	# def scanIO(self):
 	# 	inputs = mido.get_input_names()
 	# 	outputs = mido.get_output_names()
 	# 	print("input names: ", inputs)
 	# 	print("output names: ", outputs)
-	# 	self.openMIDIlst = []
+	# 	self.openmidiinputs = []
 	# 	for i in inputs:
 	# 		string = "open " + i + "? Type anything for yes, or just hit enter for no"
 	# 		x = input(string)
 	# 		if x:
 	# 			newDevice = Launchpad(i)
-	# 			self.openMIDIlst.append(newDevice)
-	# 	self.lpl = LaunchpadLayout(self.openMIDIlst)
-	# 	return self.openMIDIlst
+	# 			self.openmidiinputs.append(newDevice)
+	# 	self.lpl = LaunchpadLayout(self.openmidiinputs)
+	# 	return self.openmidiinputs
 
 
 
@@ -136,7 +141,7 @@ if __name__ == '__main__':
 	#callback listens without multithreading ?
 	#openMIDI = midos.scanIO()
 	m = midos()
-	m.scanIO()
+	#m.scanIO()
 	#openMIDI = m.scanIO()
 	parent_conn, child_conn = Pipe()
 	p = Process(target=midos.recv_MIDI, args=(child_conn,))

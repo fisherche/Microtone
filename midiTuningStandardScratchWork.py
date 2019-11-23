@@ -90,35 +90,100 @@ def extractNotesBytes(file, startPos):
 def convertPitchBendBytesToCents(mm,nn):
     return (128*int(mm.hex(),16) + int(nn.hex(),16))/163.84
 
-def 
-def injectNotes(file,startPos,replacementNotes):
+
+def convertCentsToPitchBendBytes(cents):
+    #TODO
+    pass
+def convertFreqToPitchBendBytes(basisFreq):
+    #TODO
+    pass
+
+
+
+def buildDummyNotesLst(indexStart,noteStart,indexEnd,noteEnd):
+    outp = [[0,0,0] for __ in range(128)]
+    for i in range(128):
+        if i == indexStart:
+            outp[i] = noteStart
+        if i == indexEnd:
+            outp[i] = noteEnd
+    return outp
+
+
+def injectNotes(filename,startPos,replacementNotes):
     o = 0
     barr1 = []
-    with open("Tunings/"+file,'rb') as b:
-        byte = b.read(1)
-        o += 1
-        notesLst = []
-        notesCounter = 0
-        j = 0
-        while byte != b"":
-            barr1.append(byte)
-            o +=1
-            while o >= startPos  and j < len(replacementNotes):
-                                
-                packet = []
-                for i in range(3):
-                    #add replacementNotes[i]
-                    byte = b.read(1)
-                    packet += [byte]
-                    newByte = 
-                    o += 1
-                notesLst += [packet]
-                notesCounter += 1
-                j +=1
+    with open("Tunings/"+filename+"COPY"+".mid",'wb') as cp:
+        with open("Tunings/"+filename+".mid",'rb') as b:
+            byte = b.read(1)
+            #print(byte)
+            cp.write(byte)
+            o += 1
+            notesLst = []
+            notesCounter = 0
+            notesIndex = 0
+            while byte != b"":
+                barr1.append(byte)
+                
+                o +=1
+                while o >= startPos  and notesIndex < len(replacementNotes):
+                                    
+                    packet = []
+                    for i in range(3):
+                        #add replacementNotes[i]
+                        byte = b.read(1)
+                        packet += [byte]
+                        newByte = replacementNotes[notesIndex][i].to_bytes(1,byteorder='big')
+                        #print(byte," its replacement ", newByte, " from ",replacementNotes[notesIndex][i])
+                        cp.write(newByte)
+                        o += 1
+                    notesLst += [packet]
+                    notesCounter += 1
+                    #print(notesCounter)
+                    notesIndex += 1
+                byte = b.read(1)
+                cp.write(byte)
+    
+    return
 
+#print(buildDummyNotesLst(0,[60,0,60],127,[60,0,60]))
+injectNotes("12equal",152,buildDummyNotesLst(0,[60,0,60],127,[60,0,60]))
 
-
-
+def injectNotes(filename,startPos,replacementNotes):
+    o = 0
+    barr1 = []
+    with open("Tunings/"+filename+"COPY"+".mid",'wb') as cp:
+        with open("Tunings/"+filename+".mid",'rb') as b:
+            byte = b.read(1)
+            #print(byte)
+            cp.write(byte)
+            o += 1
+            notesLst = []
+            notesCounter = 0
+            notesIndex = 0
+            while byte != b"":
+                barr1.append(byte)
+                
+                o +=1
+                while o >= startPos  and notesIndex < len(replacementNotes):
+                                    
+                    packet = []
+                    for i in range(3):
+                        #add replacementNotes[i]
+                        byte = b.read(1)
+                        packet += [byte]
+                        newByte = replacementNotes[notesIndex][i].to_bytes(1,byteorder='big')
+                        #print(byte," its replacement ", newByte, " from ",replacementNotes[notesIndex][i])
+                        cp.write(newByte)
+                        o += 1
+                    notesLst += [packet]
+                    notesCounter += 1
+                    #print(notesCounter)
+                    notesIndex += 1
+                byte = b.read(1)
+                cp.write(byte)
+    
+    return
 
 def humanReadableNotesList(notesLst):
     outp = []

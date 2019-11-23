@@ -7,8 +7,7 @@ import launchpadLayout
 #from launchpadLayout import LaunchpadLayout
 #(rows, cols, [midi note mapped, scala cent value, octave/tritave multiplier])
 #TODO DECIDE IF INCLUDE TOP ROW BUTTONS
-#TODO find math formulae to shift row, column info
-#TODO convert to binary
+#TODO math formulae to shift row, column info
 
 
 class Launchpad:
@@ -31,24 +30,22 @@ class Launchpad:
 
 
 
-	#first row is  104-111
+	#first row is  [128,135] with none at end, so will need to map down to 104-111
 	def launchpadSetup(self):
-		lpMain = np.zeros((self.numRow , self.numCol), dtype=int)
 		rows = self.numRow - 1 
 		cols = self.numCol - 1
-		start = 0
-		step = 0
+		lpMain = [[0 for i in range(self.numRow)] for j in range(self.numCol)]
 		for row in range(0,self.numRow,1):
 			for col in range(0,self.numCol,1):
 				if not (row == rows and col == cols):
 					lpMain[row][col] = 16*row + col #[0] is decimal address 
-		#insert last column into first position
-		lpMain = np.insert(lpMain,0,lpMain[row],axis = 0)
-		lpMain = np.delete(lpMain, row + 1, 0)
+				else:
+					lpMain[row][col] = None
+		lpMain = [lpMain[rows]] + [lpMain[0]] + lpMain[1:rows]
 		return lpMain
 	
 	def incomingMessageParser(self,message):
-		print(self.name," ",message)
+		#print(self.name," ",message)
 		self.layout.parseIncomingMessage(self.name,message)
 		
 
@@ -87,5 +84,5 @@ class Launchpad:
 if __name__ == '__main__':
 	pass
 	#testing creation of 9 x 9 - 1
-	#second = Launchpad()
-	#print(second.displaymidiNoteNo())
+	second = Launchpad('Fake')
+	print(second.MIDInoteArr)

@@ -42,18 +42,21 @@ def readSCL(afile):
     scaleLst = []
     if not os.path.isabs(afile):
         #TODO ensure runs from app level...
-        path = os.path.join(os.getcwd(),'scalaFiles/scl/',afile)
+        path = os.path.join(os.getcwd(),'scalaFiles/scl',afile)
     else:
-        path = file
+        path = afile
     f = open(path,'r')
     peskyFirstLine = True
-
+    peskySecondLine = True
     for line in f:
         if line[0] == '!':
             continue
         if peskyFirstLine:
             descr = line[:-1] 
             peskyFirstLine = False
+            continue
+        if peskySecondLine:
+            peskySecondLine = False
             continue
         #'!' denotes comment
         pitchVal = ""
@@ -67,6 +70,7 @@ def readSCL(afile):
             else:
                 pitchVal += c 
     f.close()
+    #print("scaleLst",scaleLst)
     scaleUsable = makeScaleUsable(scaleLst)
     return (descr, scaleUsable)
 		
@@ -74,24 +78,23 @@ def centsToInterval(cents):
     return 2**(cents/1200)
 
 def makeScaleUsable(scaleLst):
-    usableLst = []
-    for i in scaleLst:
-        if '/' in i:
-            newI = Fraction(i)
-            usableLst.append(newI)
+    usableLst = [None for i in range(len(scaleLst))]
+    for i in range(len(scaleLst)):
+        if '/' in scaleLst[i]:
+            newI = Fraction(scaleLst[i])
+            usableLst[i] = newI
         else:
-            usableLst.append(centsToInterval(float(i)))
+            usableLst[i] = centsToInterval(float(scaleLst[i]))
     return usableLst
             
 
 
 
-    def midiMapKeyboard():
-        pass
 
 if __name__ == '__main__':
     #TODO test with all files
-    print(readSCL('dorian_tri2.scl'))
+    print(readSCL('twelveEqual.scl'))
+    #print(makeScaleUsable(readSCL('twelveEqual.scl')))
     #print(frequencyListFromNoteAndScale(440,'twelveEqual.scl'))
 #cents(frq1,frq2) = 1200 * log2(b/a)
 #cents(ratio) = 1200 * log2(ratio)
