@@ -69,8 +69,8 @@ class Launchpad:
 
 	def updateAllLED(self, brightnessDecimal,velocities=[]):
 		if not len(velocities) == 40:
-		#turn on all LEDS
-		#send msg 176, 0, brightnessDecimal #125-127 low to bright
+			#turn on all LEDS
+			#send msg 176, 0, brightnessDecimal #125-127 low to bright
 			all_on = [176, 0, brightnessDecimal]
 			return all_on
 		

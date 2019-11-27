@@ -114,6 +114,7 @@ class LaunchpadLayout:
 	def remapLatticeDown(self):
 		pass
 
+	#TODO
 	# based on self.scale
 	#RETURNS:
 	# number of virtual outputs and .mid files needed
