@@ -35,21 +35,23 @@ class LaunchpadLayout:
 		return objDict
 
 	def parseIncomingMessage(self,senderName,message):
-		print(senderName,message)
+		#print(senderName,message)
 		messageBytes = message.bytes()
 		lp = self.objDict[senderName]
-		print("name", senderName, "lp", lp)
+		#print("name", senderName, "lp", lp)
 		outIndex= self.lpMapLookupLinear[lp][messageBytes[1]]
 		#use outIndexToSendToOutput
-		print(senderName,messageBytes[1]," ",outIndex)
+		#print(senderName,messageBytes[1]," ",outIndex)
 		self.sendToOutputChannel(messageBytes,outIndex)
 
 	def sendToOutputChannel(self,messageBytes,bigMIDInumber):
+		#TODO: clean
+		bigMIDInumber = self.layout[bigMIDInumber]
 
 		for i in range(len(self.virtualOuts)):
 			if bigMIDInumber < (i+1)*128:	#seive
 				regularMIDI = bigMIDInumber - (i)*128
-				print("messageby",messageBytes)
+				#print("messagebytes",messageBytes)
 				if messageBytes[2] == 127:
 					tempered = 64
 				else:
@@ -57,7 +59,7 @@ class LaunchpadLayout:
 				mess = mido.Message(type='note_on',note=regularMIDI, velocity=tempered)#TODO take out hardcoded
 				print("mess",mess)
 				self.virtualOuts[i].send(mess)
-				print("sendSuccessful")
+				print("sendSuccessful",self.virtualOuts[i])
 				break
 	#to advise user on the max vertical distance to use all notes
 	#given horizontal step is 1
@@ -78,6 +80,7 @@ class LaunchpadLayout:
 	#RETURNS :
 	# a list whose indices are sequential MIDI numbers (but if > 128,not valid)
 	# 	value at an index is the index of a note in self.scale
+	#TODO: use this for something to make adjustible the arrangement
 	def mapLinearNumbersTo2DLattice(self,vertical,horizontal=1):
 		#for each row
 			#look up linear notes

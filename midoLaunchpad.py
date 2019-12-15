@@ -7,12 +7,14 @@ import launchpad
 import launchpadLayout
 import FromScala
 
+#TODO: test with fresh install of scl files
 
 class midos:
 	def __init__(self):
 		self.openmidiinputs = self.scanIO()
-		self.lpl.spanRangeByIntervals(FromScala.readSCL('twelveEqual.scl'))
-		self.lpl.mapLinearNumbersTo2DLattice(5)
+		self.lpl.spanRangeByIntervals(FromScala.readSCL('22equal.scl'))
+		#self.lpl.mapLinearNumbersTo2DLattice()
+		self.lpl.mapLinearNumbersTo2DLattice(13)
 		self.lpl.openVirtualOuts()
 		pass
 	#default backend, written in C++, convenient for that transformation
