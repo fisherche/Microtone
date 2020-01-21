@@ -14,7 +14,7 @@ class midos:
 		self.openmidiinputs = self.scanIO()
 		self.lpl.spanRangeByIntervals(FromScala.readSCL('22equal.scl'))
 		#self.lpl.mapLinearNumbersTo2DLattice()
-		self.lpl.mapLinearNumbersTo2DLattice(13)
+		self.lpl.mapLinearNumbersTo2DLattice(9)
 		self.lpl.openVirtualOuts()
 		pass
 	#default backend, written in C++, convenient for that transformation
@@ -26,7 +26,7 @@ class midos:
 	#channels from 0 to 15 instead of 1 to 16
 	#For LEDs, X-Y layout:
 	#origin is topleft corner of grid
-	#Hex: Key = (10h x Row) + Column
+	#Hex: Key = (10h x Row) + Columnd
 	#Decimal: Key = (16*Row)+ Column
 	#scene launch (right) are Column 8,  last is 7
 	#
