@@ -1,0 +1,23 @@
+
+
+guitarTuner:
+    Octave Fret:
+        13
+        12
+        11
+        10
+        9
+        8
+        7?
+    ED2 selector
+        All ED2 XOR multiples of the octave fret number
+
+        Convert ed2 to notes
+            reachable notes on a string are smallest division in the Octave Fret
+    Base Frequency = 440
+    Base MIDI = 69
+    Strings
+    Range of each string
+        -keep reference to 12ed2 for help
+    Audio Module
+     
