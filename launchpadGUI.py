@@ -28,11 +28,11 @@ class MainScreen(FloatLayout):
         
         self.open_note_display_size_hint = 0.125
         self.open_note_display_x_offset = 5
-        #TODO maintain to ED2 instrument
+        #TODO 1 maintain to ED2 instrument
 
     def add_string_and_its_widgets(self,start_scale_number=0):
         #TODO update tuner??
-        #TODO update reference to ED2 instrument's openNotes
+        #TODO 2 update reference to ED2 instrument's openNotes
         #TODO use self.size to adjust offsets
         down_button = Button(
             text='Down',
@@ -46,7 +46,7 @@ class MainScreen(FloatLayout):
         up_button = Button(
             text='Up',
             size_hint=(self.tuning_button_size_hint,self.tuning_button_size_hint),
-            pos = (self.tuning_peg_x_offset, self.prev_tuning_peg_y_offset)
+            pos = (self.tuning_peg_x_offset + self.open_note_display_x_offset, self.prev_tuning_peg_y_offset)
             )
         #update y offset
 
