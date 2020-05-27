@@ -12,14 +12,13 @@ import FromScala
 class midos:
 	def __init__(self):
 		self.openmidiinputs = self.scanIO()
-		self.lpl.spanRangeByIntervals(FromScala.readSCL('22equal.scl'))
-		#self.lpl.mapLinearNumbersTo2DLattice()
-		self.lpl.mapLinearNumbersTo2DLattice(9)
+		self.lpl.spanAudibleRange(FromScala.readSCL('22equal.scl'))
+		#self.lpl.addFlatLattice()
+		self.lpl.addFlatLattice(2,3)
 		self.lpl.openVirtualOuts()
-		pass
 	#default backend, written in C++, convenient for that transformation
-	mido.set_backend('mido.backends.rtmidi')
-	print(mido.backend)
+		mido.set_backend('mido.backends.rtmidi')
+		print(mido.backend)
 
 
 	#CONVENTIONS
@@ -107,7 +106,13 @@ class midos:
 	# 			self.openmidiinputs.append(newDevice)
 	# 	self.lpl = LaunchpadLayout(self.openmidiinputs)
 	# 	return self.openmidiinputs
-
+	def setupPorts(self):
+		j = 0
+		for i in self.lpl.keypadLst:
+			i.portIn = mido.open_input(i.name, callback=i.incomingMessageParser)
+			i.portOut = mido.open_output(i.name)
+			j += 1
+		return
 
 
 	#TODO rout other launchpads to MIDI virtual inputs 
@@ -120,13 +125,7 @@ class midos:
 				break
 		x = conn.recv()
 
-	def setupPorts(self):
-		j = 0
-		for i in self.lpl.objLst:
-			i.portIn = mido.open_input(i.name, callback=i.incomingMessageParser)
-			i.portOut = mido.open_output(i.name)
-			j += 1
-		return
+
 
 	# port = mido.open_input(mido.get_input_names()[1], callback=LaunchpadLayout.incomingMessageParser0)
 	# #portout = mido.open_output(mido.get_output_names()[1])
