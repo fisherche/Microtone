@@ -9,19 +9,83 @@ import launchpadLayout
 
 kivy.require('1.11.0')
 
+class ED:
+    #holds cent values and frequency rep. of an n-Equal Division of the Octave
+    def __init__(self, n, secondHarmonicFret):
+        pass
+        self.n = n
+        self.secondHarmonicFret = secondHarmonicFret
+        #TODO integrateGenerateAssignED2 from guitarTuner.py 
+
+    
+
+
 class Fret:
-    #Frets are ordered by index in Monocord
     #Frets are used for labelling with scale number, ED2 number, etc, updated by the parent Monocord
-    def __init__(self, )
+    #necessary for clicking and displaying on the screen
+    #TODO should each fret HAVE an object
+    #TODO should inherit from Widget
+    def __init__(self, fretNumber, indexED2=None, activeScaleIndex=None, notationName=None):
+        self.fretNumber = 0
+        self.indexED2 = indexED2
+        self.activeScaleIndex = activeScaleIndex
+        self.notationName = notationName
+
+    
+    def kivyDisplay(self):
+        #TODO
+        raise NotImplementedError
+
+    def setIndex(self,indexED2, activeScaleIndex):
+        self.indexED2 = indexED2
+        self.activeScaleIndex = activeScaleIndex
+        return
 
 class Monocord:
-    def __init__(self, numberFrets=25, secondHarmonicFret=12):
+    """
+    To use:
+    (within a Kivy Layout, self)
+    monocord = Monocord()
+    monocord
+    """
+    #TODO: has- or is a layout?
+    #TODO fret indexing when first element is the 'tuning peg'
+    #TODO each monocord should HAVE an ED2 object?? -- I believe yes
+    #TODO incorporate AudioDevice from guitarTuner
+    #TODO should inherit from Layout and not a widget?
+    #since each cord plays at most one note at a time, it makes sense for each to have its own AudioDevice object
+    #but this does not generalize to any 2D keyboard--at this time I believe that's okay
+    # |<tuning interface>|fret0|fret1|...|fret(n-1)|
+    def __init__(self, numberFrets=25, secondHarmonicFret=12, frequency=440):
         self.secondHarmonicFret= secondHarmonicFret
+        self.frequency = frequency
         self.numberFrets = 25
-        self.frets = [Fret() for _ in range(numberFrets)]
-        for fret in self.frets:
+        self.frets = [Fret(i) for i in range(numberFrets)]
+        self.rootIndex = rootIndex
+        self.EDO = ED(2,secondHarmonicFret)
+        self.layout = GridLayout(rows=1,cols=self.numberFrets,row_force_default=True)
 
+    
+    def tune(self, ED2index=None, multiplier=None, frequency=440):
+        """
+        PARAMETERS: ED2index, optional
+        
+        """
+        self.frequency = frequency
 
+    def updateFrets(self):
+        #TODO
+        raise NotImplementedError
+
+    def kivyDisplay(self):
+        #TODO
+        raise NotImplementedError
+    
+
+class Fretboard(BoxLayout):
+    #TODO implement
+    #NOTE: set string index directly, since kivy defaults to newest-first indexing
+    pass
 
 
 class MainScreen(FloatLayout):
