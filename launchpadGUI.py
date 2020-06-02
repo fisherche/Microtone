@@ -2,10 +2,11 @@ from kivy.app import App
 from kivy.uix.label import Label 
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.textinput import TextInput
 from kivy.event import EventDispatcher
 import kivy 
-import launchpadLayout
+from launchpadLayout import LaunchpadLayout
 
 kivy.require('1.11.0')
 
@@ -152,7 +153,7 @@ class Fretboard:
     #TODO: does this need a scale?
     #Fretboard <- ordered set of Monocords, each of which may divide a different ed2
     #TODO calculate and generate ED2 for collection of monochords
-    def __init__(self, numberStrings=6, numberFrets=25:
+    def __init__(self, numberStrings=6, numberFrets=25):
         """
         self.boardBackend stores fretboard labels as pair (index in nEDO, multiplier)
 
@@ -161,7 +162,7 @@ class Fretboard:
         self.boardBackend = [] #collection of Monochord objects
         
         for string in range(numberStrings):
-            self.boardBackend += 
+            self.boardBackend += Monocord(numberFrets)
             for fret in range(numberFrets):
                 #make a child button for each one
                 #set the label to index in a scale
