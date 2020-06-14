@@ -6,6 +6,10 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.textinput import TextInput
 from kivy.event import EventDispatcher
 import kivy 
+
+from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import QApplication, QMainWindow
+import sys
 from launchpadLayout import LaunchpadLayout
 
 kivy.require('1.11.0')
@@ -42,7 +46,7 @@ class Fret:
         self.activeScaleIndex = activeScaleIndex
         return
 
-class Monocord:
+class Monocord(GridLayout):
     """
     To use:
     (within a Kivy Layout, self)
@@ -57,11 +61,13 @@ class Monocord:
     #since each cord plays at most one note at a time, it makes sense for each to have its own AudioDevice object
     #but this does not generalize to any 2D keyboard--at this time I believe that's okay
     # |<tuning interface>|fret0|fret1|...|fret(n-1)|
-    def __init__(self, numberFrets=25, secondHarmonicFret=12, frequency=440):
+    def __init__(self, numberFrets=25, secondHarmonicFret=12, frequency=440, **kwargs):
+        super(Monocord, self).__init__(**kwargs)
         self.secondHarmonicFret= secondHarmonicFret
         self.frequency = frequency
         self.numberFrets = 25
-        self.frets = [Fret(i) for i in range(numberFrets)]
+        self.frets = [Fret(i) for i in range(numberFrets)]#todo add widget
+        self.drawFrets()
         self.rootIndex = rootIndex
         self.EDO = ED(2,secondHarmonicFret)
         self.layout = GridLayout(rows=1,cols=self.numberFrets,row_force_default=True)
@@ -82,11 +88,6 @@ class Monocord:
         #TODO
         raise NotImplementedError
     
-
-class Fretboard(BoxLayout):
-    #TODO implement
-    #NOTE: set string index directly, since kivy defaults to newest-first indexing
-    pass
 
 
 class MainScreen(FloatLayout):
@@ -168,30 +169,28 @@ class Fretboard:
                 #set the label to index in a scale
                 #self.boardBackend[string][fret] = 
 
-                pass 
+                pass
             #make a 
     def intonateAllMonocords(self, secondHarmonicFret):
         for monochord in self.boardBackend:
             self.secondHarmonicFret = secondHarmonicFret
-class GuitarTunerApp(App):
-    def __init__(self):
-        self.built = False
-        pass
-    def build(self):
-        self.built = True
-        self.root = MainScreen()
-        return MainScreen()
+class GuitarTunerApp:
+    def __init__(self,xPos=0, yPos=0, width=400, height=400):
+        self.app = QApplication(sys.argv)
+        self.dimensions = (width, height)
+        self.mainWindow = QMainWindow()
+        self.mainWindow.setGeometry(xPos, yPos, dimensions[0], dimensions[1])
+        self.mainWindow.setWindowTitle("Microtonal Guitar Tuner")
+        self.mainWindow.show()
     
+        sys.exit(app.exec_())
 
-class CustomDispatcher(EventDispatcher):
-    def __init__(self,**kwargs):
-        self.register_event_type('on_test')
-        super(CustomDispatcher,self).__init__(**kwargs)
+
     
-    def do_something(self,val):
-        self.dispatch('')
 
 if __name__ == '__main__':
-    gt = SquareLatticeDisplay(LaunchpadLayout(LaunchpadLayout.scanIO()))
-    gt.build()
-    gt.run()
+    #gt = SquareLatticeDisplay(LaunchpadLayout(LaunchpadLayout.scanIO()))
+    #gt.build()
+    #gt.run()
+    pass
+
