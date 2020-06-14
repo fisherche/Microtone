@@ -30,8 +30,8 @@ class ED2Instrument():
         self.strings = [] #List that stores lists of playable notes
 
 
-    #returns a list of cent values
-    def generateAssignED2(self,slices, referenceHz=440, lowestHz=20, highestHz = 3000):
+    #returns a list of frequency values
+    def generateAssignED2(self, nEDO, referenceHz=440, lowestHz=20, highestHz = 3000):
 
         #calculate which key the reference is
         key = 0
@@ -42,24 +42,34 @@ class ED2Instrument():
         if referenceHz > highestHz:
             print("Reference lower than lowest allowable")
             return
-        currentHz = referenceHz*(2**(1/slices))
+
+        currentHz = referenceHz * (2 ** (1 / nEDO))
         ed2List = []
         keyExponent = 0
         while currentHz > lowestHz:
-            currentHz = referenceHz*(2**(1/slices))**(keyExponent)
+            currentHz = referenceHz * (2 ** (1 / nEDO )) ** (keyExponent)
             ed2List = [currentHz] + ed2List 
             keyExponent -= 1
-        highHz = referenceHz*(2**(1/slices)) 
+        highHz = referenceHz*(2**(1/nEDO)) 
         referenceNoteNo = -1 * keyExponent
         keyExponent = 0
         while highHz < highestHz:
             keyExponent += 1
-            highHz = referenceHz*(2**(1/slices))**(keyExponent)
+            highHz = referenceHz*(2**(1/nEDO))**(keyExponent)
             ed2List = ed2List + [highHz]
         self.ed2 = ed2List
         self.referenceNoteNo = referenceNoteNo
         self.referenceHz = referenceHz
         return ed2List,referenceNoteNo
+    
+    def generateCentsED2(self, nEDO):
+        totalCents = 1200 #equally divide octave
+        centsPerStep = totalCents / nEDO
+        
+
+
+
+
 
     def pluckString(self,stringIndex,noteIndex=None):
         if noteIndex is None:
