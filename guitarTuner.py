@@ -1,4 +1,4 @@
-import sounddevice
+import audioDevice
 import numpy as np 
 import time
 
@@ -63,8 +63,9 @@ class ED2Instrument():
         return ed2List,referenceNoteNo
     
     def generateCentsED2(self, nEDO):
-        totalCents = 1200 #equally divide octave
-        centsPerStep = totalCents / nEDO
+        centsPerOctave = 1200 #equally divide octave
+        centsPerStep = centsPerOctave / nEDO
+
         
 
 

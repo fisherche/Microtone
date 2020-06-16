@@ -2,7 +2,7 @@ from enum import Enum
 import numpy as np
 import mido
 import color
-import orientation
+from orientation import Orientation
 import launchpadLayout
 #from launchpadLayout import LaunchpadLayout
 #(rows, cols, [midi note mapped, scala cent value, octave/tritave multiplier])
@@ -12,15 +12,23 @@ import launchpadLayout
 
 class Launchpad:
 	def __init__(self,name, main = False, mode = "XY"):
+		"""
+		Class to interface with the MIDI 
+		A Novation Launchpad is an 80-button MIDI controller arr. like so:
+		XXXXXXXX	<- [8][9] has no button
+		XXXXXXXXX
+		XXXXXXXXX
+		XXXXXXXXX
+		XXXXXXXXX
+		XXXXXXXXX
+		XXXXXXXXX
+		XXXXXXXXX
+		"""
 		self.main = main
 		self.mode = mode
 		self.orientation = orientation.Orientation.UP
 		self.numCol = 9
 		self.numRow = 9
-		self.leftLP = None
-		self.rightLP = None
-		self.upLP = None
-		self.downLP = None
 		self.name = name
 		self.MIDInoteArr = self.launchpadSetup()
 		self.layout = None
@@ -38,7 +46,7 @@ class Launchpad:
 		for row in range(0,self.numRow,1):
 			for col in range(0,self.numCol,1):
 				if not (row == rows and col == cols):
-					lpMain[row][col] = 16*row + col #[0] is decimal address 
+					lpMain[row][col] = 16*row + col #lpMain[*] is decimal address 
 				else:
 					lpMain[row][col] = None
 		lpMain = [lpMain[rows]] + [lpMain[0]] + lpMain[1:rows]

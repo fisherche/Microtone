@@ -1,12 +1,13 @@
 import os 
 from fractions import Fraction
 import math
-#read .scl files
+#TODO instruct user to put .scl or .kbm files in ScalaFiles
+#Scala: http://www.huygens-fokker.org/scala/ : the most popular tuning repository and generator and keyboard mapper
+#PURPOSE: read .scl files 
 #FUTURE: .kbm for loading keboard mappings
 #parse them per definition
 
-
-# ! /Users/Fisher 1/Desktop/twelveEqual.scl
+# ! /twelveEqual.scl
 # !
 # twelveEqual
 #  12
@@ -24,7 +25,7 @@ import math
 #  1100.00000
 #  2/1
 
-#TODO system agnostic paths
+#TODO system-agnostic paths
 #TODO function that opens a file from explorer
 def readSCL(afile):
     """
@@ -33,16 +34,14 @@ def readSCL(afile):
     Parameters:
     afile (str): file name or relative or absolute path
 
-    Returns:
-    as a tuple:
+    Returns: (descr, scaleLst)
     descr (str): optional description of scale
     scaleLst (list of str): (prepended by the number of notes in the scale) comma-separated cent values (denoted by '.') or intervals (denoted by absence of '.' or by '/'). 
-    Following Scala convention, 1/1 or 0 cents, unison, is omitted. 
+    Following Scala convention, the first ratio, 0 cents or 1/1, is omitted. 
     """
     scaleLst = []
     if not os.path.isabs(afile):
-        #TODO ensure runs from app level...
-        path = os.path.join(os.getcwd(),'scalaFiles/scl',afile)
+        path = os.path.join(os.getcwd(),'ScalaFiles',afile)
     else:
         path = afile
     f = open(path,'r')
@@ -71,33 +70,34 @@ def readSCL(afile):
                 pitchVal += c 
     f.close()
     #print("scaleLst",scaleLst)
+    def makeScaleUsable(scaleLst):
+        usableLst = [None for i in range(len(scaleLst))]
+        for i in range(len(scaleLst)):
+            if '/' in scaleLst[i]:
+                #we've encountered a fraction 
+                newI = Fraction(scaleLst[i])
+                usableLst[i] = newI
+            else:
+                usableLst[i] = centsToInterval(float(scaleLst[i]))
+        return usableLst
     scaleUsable = makeScaleUsable(scaleLst)
     return (descr, scaleUsable)
 		
 def centsToInterval(cents):
+    """
+    cents congruent mod 1200 are "equivalent"
+    """
     return 2**(cents/1200)
-
-def makeScaleUsable(scaleLst):
-    usableLst = [None for i in range(len(scaleLst))]
-    for i in range(len(scaleLst)):
-        if '/' in scaleLst[i]:
-            newI = Fraction(scaleLst[i])
-            usableLst[i] = newI
-        else:
-            usableLst[i] = centsToInterval(float(scaleLst[i]))
-    return usableLst
-            
-
-
+def setPathToScalaFiles():
+    #TODO
+    raise NotImplementedError
 
 
 if __name__ == '__main__':
+    pass
     #TODO test with all files
-    print(readSCL('twelveEqual.scl'))
-    #print(makeScaleUsable(readSCL('twelveEqual.scl')))
+    #print(readSCL('twelveEqual.scl'))
+    #print(readSCL('twelveEqual.scl'))
     #print(frequencyListFromNoteAndScale(440,'twelveEqual.scl'))
-#cents(frq1,frq2) = 1200 * log2(b/a)
-#cents(ratio) = 1200 * log2(ratio)
-#note(ref freq, cents) = reffreq*2^(cents/1200)
-#ratio of 1 cent is approx 1.0005777895
+
 
