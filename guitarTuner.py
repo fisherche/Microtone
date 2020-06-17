@@ -51,6 +51,7 @@ class ED2Instrument():
     def generateCentsED2(self, nEDO):
         centsPerOctave = 1200 #equally divide octave
         centsPerStep = centsPerOctave / nEDO
+        return centsPerStep
 
     def pluckString(self,stringIndex,noteIndex=None):
         if noteIndex is None:
@@ -111,12 +112,12 @@ class ED:
 
 
 class Fret(QWidget):
-    #Frets are used for labelling with scale number, ED2 number, etc, updated by the parent Monocord
+    #Frets are used for labelling with scale number, ED2 number, etc, updated by the parent Monochord
     #necessary for clicking and displaying on the screen
     #TODO should each fret HAVE an object
     #TODO inheritance from QWidget
-    def __init__(self, parentMonocord, fretNumber, indexED2=None, activeScaleIndex=None, octaveNumber= 1, notationName=None):
-        self.parent = parentMonocord
+    def __init__(self, parentMonochord, fretNumber, indexED2=None, activeScaleIndex=None, octaveNumber= 1, notationName=None):
+        self.parent = parentMonochord
         self.fretNumber = 0
         self.indexED2 = indexED2
         self.activeScaleIndex = activeScaleIndex
@@ -147,17 +148,17 @@ class Fret(QWidget):
         self.activeScaleIndex = activeScaleIndex
         return
 
-class Monocord():
+class Monochord():
     """
     To use:
     (within a Kivy Layout, self)
-    monocord = Monocord()
-    monocord
+    Monochord = Monochord()
+    Monochord
     """
     #TODO refactor to not be kivy dependent
     #TODO: has- or is a layout?
     #TODO fret indexing when first element is the 'tuning peg'
-    #TODO each monocord should HAVE an ED2 object?? -- I believe yes
+    #TODO each Monochord should HAVE an ED2 object?? -- I believe yes
     #TODO incorporate AudioDevice from guitarTuner
     #TODO should inherit from Layout and not a widget?
     #since each cord plays at most one note at a time, it makes sense for each to have its own AudioDevice object
@@ -253,36 +254,36 @@ class SquareLatticeDisplay():
 
 class Fretboard:
     #TODO: does this need a scale?
-    #Fretboard <- ordered set of Monocords, each of which may divide a different ed2
+    #Fretboard <- ordered set of Monochords, each of which may divide a different ed2
     #TODO calculate and generate ED2 for collection of monochords
-    def __init__(self, numberOfMonocords=6, numberFrets=25):
+    def __init__(self, numberOfMonochords=6, numberFrets=25):
         """
-        self.monocords stores fretboard labels as pair (index in nEDO, multiplier)
-        A Fretboard object has numberOfMonocords Monochords to be tuned independently
+        self.monochords stores fretboard labels as pair (index in nEDO, multiplier)
+        A Fretboard object has numberOfMonochords Monochords to be tuned independently
             A Monochord has numberFrets Frets
         
         """
 
-        self.monocords = [] #collection of Monochord objects
+        self.monochords = [] #collection of Monochord objects
         
-        for string in range(numberOfMonocords):
-            self.monocords += Monocord(numberFrets)
+        for string in range(numberOfMonochords):
+            self.monochords += Monochord(numberFrets)
             for fret in range(numberFrets):
                 #make a child button for each one
                 #set the label to index in a scale
-                #self.monocords[string][fret] = 
+                #self.monochords[string][fret] = 
 
                 pass
             #make a 
-        def getMonocord(self, index):
-            return self.monocords[index]
+        def getMonochord(self, index):
+            return self.monochords[index]
 
 
         
         
 
-    def intonateAllMonocords(self, secondHarmonicFret):
-        for monochord in self.monocords:
+    def intonateAllMonochords(self, secondHarmonicFret):
+        for monochord in self.monochords:
             self.secondHarmonicFret = secondHarmonicFret
         
 class GuitarTunerApp:
