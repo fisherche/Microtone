@@ -1,32 +1,10 @@
-<<<<<<< HEAD
-import audioDevice
-=======
-import sounddevice
+from audioDevice import AudioDevice
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QHBoxLayout, QGroupBox, QDialog, QVBoxLayout, QGridLayout
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import pyqtSlot
 
->>>>>>> 79c2f0e4639710aff761608d835248cd258ea923
 import numpy as np 
 import time
-
-class AudioDevice():
-    def __init__(self):
-        self.sampleFreq = 44100
-        self.amplification = 0.4 #TODO add additional attunation w/r/t intensity
-        self.duration = 4
-
-
-    def makeAudible(self,frequency, duration=None):
-        if duration == None:
-            duration = self.duration
-        samples = np.arange(duration,self.sampleFreq)/ self.sampleFreq
-        
-        waveform = np.sin(2* np.pi * samples * frequency)
-        waveScaled = waveform * self.amplification
-        sounddevice.play(waveScaled,self.sampleFreq)
-        time.sleep(duration)
-        sounddevice.stop()
     
 class ED2Instrument():
     def __init__(self,numberOfStrings):
@@ -73,12 +51,6 @@ class ED2Instrument():
     def generateCentsED2(self, nEDO):
         centsPerOctave = 1200 #equally divide octave
         centsPerStep = centsPerOctave / nEDO
-
-        
-
-
-
-
 
     def pluckString(self,stringIndex,noteIndex=None):
         if noteIndex is None:
@@ -163,10 +135,11 @@ class Fret(QWidget):
         self.setIconText(self.notationName)
     
     def displayHz(self):
-        
-        return
+        #TODO
+        raise NotImplementedError
 
-    def displayFrequency():
+    def displayFrequency(self):
+        #TODO
         raise NotImplementedError
 
     def setIndex(self,indexED2, activeScaleIndex):

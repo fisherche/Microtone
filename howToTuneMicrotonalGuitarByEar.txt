@@ -1,0 +1,32 @@
+Fisher Cherechinsky
+
+Constructing By Ear 2n-ED2s on Fretted Instruments
+
+The piano and fretted instruments in most modern Western music are tuned like 12 equal-size pie slices.
+How would we cut a 12-slice- into a 24-slice pie? Cut each slice in half! This is a continuation of the bisecting process of cutting a pizza,
+first in half, then in quarters, then eigths--but we were given a 12-slice pie, so our task is reduced to bisecting each angle.
+
+Luckily, this is just as simple on fretted instruments!
+
+More formally, fretted instruments in the West divide the ratio 2:1, the 2nd harmonic (integer multiple) of a chosen frequency, into 12 equally-spaced notes.
+Thus 12-ED2 is 12 Equal Divisions of 2[nd harmonic].
+
+We hear two frequencies f and g to be 'equivalent' if g / f = 2^n for some integer n.  
+
+For an arbitrary frequency f, allowable frequencies in 12-ED2 are given by 
+f' = f*2^(j/12) for all integers j such that 20 Hz ≤ f' ≤ 20000 Hz, the comomonly cited range of human hearing.
+
+Since 'equivalent' notes repeat every 12 notes, we've reduced a grand piano to 7 stacked pies (with three extra slices)
+
+To preserve and further the pie analogy with pi, I find it convenient to express these notes as Complex numbers z in exponential form (i = squareRoot(-1)): 
+
+z= e^(pi*i*2*(j/12)), j as above.
+
+For convenience, we choose our arbitrary f = e^0 = 1.
+
+The piano and guitar are related thus:
+
+[PIC]
+
+
+

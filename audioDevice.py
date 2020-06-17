@@ -15,7 +15,7 @@ class AudioDevice():
             duration = self.duration
         waveform = np.sin(2 * np.pi * self.eaSample * frequency / self.samples)
         waveScaled = waveform * self.amplification
-        sounddevice.play(waveformScaled,self.samples)
+        sounddevice.play(waveScaled,self.samples)
         time.sleep(duration)
         sounddevice.stop()
     

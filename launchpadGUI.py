@@ -151,28 +151,30 @@ class SquareLatticeDisplay(App):
         return MainScreen()
 
 class Fretboard:
-    #TODO: does this need a scale?
+    #Defaults to 12-TET
     #Fretboard <- ordered set of Monocords, each of which may divide a different ed2
     #TODO calculate and generate ED2 for collection of monochords
     def __init__(self, numberStrings=6, numberFrets=25):
         """
-        self.boardBackend stores fretboard labels as pair (index in nEDO, multiplier)
+        self.board stores fretboard labels as pair (index in nEDO, multiplier)
 
         """
 
-        self.boardBackend = [] #collection of Monochord objects
+        self.board = [Monocord(numberFrets) for _ in numberStrings] #collection of Monochord objects
         
         for string in range(numberStrings):
-            self.boardBackend += Monocord(numberFrets)
-            for fret in range(numberFrets):
-                #make a child button for each one
-                #set the label to index in a scale
-                #self.boardBackend[string][fret] = 
+            thisString = Monocord(numberFrets)
+            self.board += thisString
 
-                pass
-            #make a 
+    def populateBoard(self, numberStrings, numberFrets):
+        self.board = []
+        for string in range(numberStrings):
+            thisString = Monocord(numberFrets)
+            self.board += thisString
+
+
     def intonateAllMonocords(self, secondHarmonicFret):
-        for monochord in self.boardBackend:
+        for monochord in self.board:
             self.secondHarmonicFret = secondHarmonicFret
 class GuitarTunerApp:
     def __init__(self,xPos=0, yPos=0, width=400, height=400):
