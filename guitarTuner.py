@@ -18,15 +18,13 @@ class ED2Instrument():
 
     #returns a list of frequency values
     def generateAssignED2(self, nEDO, referenceHz=440, lowestHz=20, highestHz = 3000):
-
         #calculate which key the reference is
         key = 0
-
         if referenceHz < lowestHz:
-            print("Reference lower than lowest allowable")
+            print("Reference Hz lower than lowest allowable")
             return
         if referenceHz > highestHz:
-            print("Reference lower than lowest allowable")
+            print("Reference Hz higher than highest allowable")
             return
 
         currentHz = referenceHz * (2 ** (1 / nEDO))
@@ -41,7 +39,7 @@ class ED2Instrument():
         keyExponent = 0
         while highHz < highestHz:
             keyExponent += 1
-            highHz = referenceHz*(2**(1/nEDO))**(keyExponent)
+            highHz = referenceHz*(2 ** (1/  nEDO))**(keyExponent)
             ed2List = ed2List + [highHz]
         self.ed2 = ed2List
         self.referenceNoteNo = referenceNoteNo
@@ -102,63 +100,82 @@ class ED2Instrument():
 
 class ED:
     #holds cent values and frequency rep. of an n-Equal Division of the Octave
-    def __init__(self, n, secondHarmonicFret):
+    def __init__(self, nEDO):
         pass
-        self.n = n
-        self.secondHarmonicFret = secondHarmonicFret
+        self.nEDO = nEDO
+        self.centsPerStep = self.centsPerStep()
+        self.centsList = self.generateCentsList() #default note names
+        self.noteNames = [self.centsList[i] for i in range(len(self.centsList))]
         #TODO integrateGenerateAssignED2 from guitarTuner.py 
 
-    
+    def centsPerStep(self):
+        centsPerOctave = 1200
+        return centsPerOctave / self.nEDO
 
+    def generateCentsList(self):
+        """
+        of form [0, ..., 1200]
+        """
+        centsList = [i * self.centsPerStep for i in range(0,nEDO + 1)]
+        self.centsList = centsList
+        return centsList
+    
+    def renameNote(self, index, name):
+        self.noteNames[index] = name
 
 class Fret(QWidget):
     #Frets are used for labelling with scale number, ED2 number, etc, updated by the parent Monochord
     #necessary for clicking and displaying on the screen
     #TODO should each fret HAVE an object
     #TODO inheritance from QWidget
-    def __init__(self, parentMonochord, fretNumber, indexED2=None, activeScaleIndex=None, octaveNumber= 1, notationName=None):
+    def __init__(self, parentMonochord, fretNumber, indexED2=None, octaveMultiplier=1):
+        """
+        A Fret is a QWidget
+        A Fret is managed by its parentMonochord
+        We can use the fretNumber for tablature 
+
+        """
         self.parent = parentMonochord
-        self.fretNumber = 0
-        self.indexED2 = indexED2
-        self.activeScaleIndex = activeScaleIndex
-        self.octaveNumber = 1 
-        self.notationName = notationName
+        self.fretNumber = fretNumber
+        self.indexED2 = indexED2 #TODO: redundant? perhaps the parent should manage this
+        self.octaveMultiplier = octaveMultiplier
 
     def initializeUI(self):
         #TODO
         raise NotImplementedError
 
-    def displayPitchClass(self):
+    def displayPitchClass(self):      
+        #TODO
+        raise NotImplementedError
+
+    def displayED2Index(self):
         self.setIconText(str(self.indexED2))
-        #TODO tests
-        return
+
     def displayNoteName(self):
-        self.setIconText(self.notationName)
+        """
+        parent maintains the note names
+        """
+        self.setIconText(self.parent.EDO.noteNames[self.indexED2])
     
     def displayHz(self):
         #TODO
         raise NotImplementedError
 
-    def displayFrequency(self):
+    def setIndex(self,indexED2):
+        self.indexED2 = indexED2
+        return
+    
+    def highlightNote(self,color):
         #TODO
         raise NotImplementedError
 
-    def setIndex(self,indexED2, activeScaleIndex):
-        self.indexED2 = indexED2
-        self.activeScaleIndex = activeScaleIndex
-        return
-
 class Monochord():
     """
-    To use:
-    (within a Kivy Layout, self)
-    Monochord = Monochord()
-    Monochord
+
     """
-    #TODO refactor to not be kivy dependent
+    #TODO refactor to no?O9[[uypt be kivy dependent
     #TODO: has- or is a layout?
     #TODO fret indexing when first element is the 'tuning peg'
-    #TODO each Monochord should HAVE an ED2 object?? -- I believe yes
     #TODO incorporate AudioDevice from guitarTuner
     #TODO should inherit from Layout and not a widget?
     #since each cord plays at most one note at a time, it makes sense for each to have its own AudioDevice object
@@ -186,7 +203,7 @@ class Monochord():
         #TODO
         raise NotImplementedError
 
-    def kivyDisplay(self):
+    def initializeUI(self):
         #TODO
         raise NotImplementedError
     
@@ -307,4 +324,7 @@ if __name__ == "__main__":
         print(guitar.ed2[guitar.openNotes[i]])
     guitar.pluckAllOpenStrings()
     #guitar.playED2()
+
+
+    assert ED(12).generateCentsList() == [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200]
 

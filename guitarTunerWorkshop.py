@@ -35,9 +35,7 @@ class TunerApp(QDialog):
         #add widgets to the layout
 
     def initializeFretboardUI(self):
-        #TODO I assume I need to add button/label widgets to the layout this way
-        
-
+        #TODO I assume I need to add button/label widgets to the layout this way    
         if __name__ == '__main__':
             app = TunerApp(sys.argv)
             
