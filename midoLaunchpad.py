@@ -58,9 +58,8 @@ class midos:
 
 	#send message 146, Velocity 1, Velocity 2,
 		
-	def mapScale(scale):
-		
-		raise NotImplementedError
+	def mapScale(scale):	
+		raise NotImplementedError #TODO
 
 	def setDutyCycle(numerator=1,denominator=8):
 		if numerator < 9:
@@ -92,20 +91,7 @@ class midos:
 		self.lpl.assignAsLayout(openmidiinputs) #to facilitate later changes in layouts
 		self.setupPorts()	#instance variable assigned to a Launchpad
 		return openmidiinputs
-	# def scanIO(self):
-	# 	inputs = mido.get_input_names()
-	# 	outputs = mido.get_output_names()
-	# 	print("input names: ", inputs)
-	# 	print("output names: ", outputs)
-	# 	self.openmidiinputs = []
-	# 	for i in inputs:
-	# 		string = "open " + i + "? Type anything for yes, or just hit enter for no"
-	# 		x = input(string)
-	# 		if x:
-	# 			newDevice = Launchpad(i)
-	# 			self.openmidiinputs.append(newDevice)
-	# 	self.lpl = LaunchpadLayout(self.openmidiinputs)
-	# 	return self.openmidiinputs
+
 	def setupPorts(self):
 		j = 0
 		for i in self.lpl.keypadLst:
@@ -114,9 +100,6 @@ class midos:
 			j += 1
 		return
 
-
-	#TODO rout other launchpads to MIDI virtual inputs 
-
 	def recv_MIDI(conn):
 		#blocking statement waits 
 		while 1:
@@ -124,14 +107,6 @@ class midos:
 			if msg == "CLOSE":
 				break
 		x = conn.recv()
-
-
-
-	# port = mido.open_input(mido.get_input_names()[1], callback=LaunchpadLayout.incomingMessageParser0)
-	# #portout = mido.open_output(mido.get_output_names()[1])
-	# port1 = mido.open_input(mido.get_input_names()[2], callback=LaunchpadLayout.incomingMessageParser0)
-	# #portout1 = mido.open_output(mido.get_output_names()[2])
-
 
 
 if __name__ == '__main__':

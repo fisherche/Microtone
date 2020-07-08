@@ -99,7 +99,12 @@ class ED2Instrument():
         #TODO
 
 class ED:
-    #holds cent values and frequency rep. of an n-Equal Division of the Octave
+    """
+    holds cent values and frequency rep. of an n-Equal Division of the Octave
+    I believe this'd be the place to generate/store closest Just Intonation ratios
+    An n-EDO is a subset of all n*i-EDOs, where i is an integer
+    """
+
     def __init__(self, nEDO):
         pass
         self.nEDO = nEDO
@@ -116,7 +121,7 @@ class ED:
         """
         of form [0, ..., 1200]
         """
-        centsList = [i * self.centsPerStep for i in range(0,nEDO + 1)]
+        centsList = [i * self.centsPerStep for i in range(0,self.nEDO + 1)]
         self.centsList = centsList
         return centsList
     
@@ -133,8 +138,8 @@ class Fret(QWidget):
         A Fret is a QWidget
         A Fret is managed by its parentMonochord
         We can use the fretNumber for tablature 
-
         """
+        super(Fret,self).__init__()
         self.parent = parentMonochord
         self.fretNumber = fretNumber
         self.indexED2 = indexED2 #TODO: redundant? perhaps the parent should manage this
@@ -173,7 +178,7 @@ class Monochord():
     """
 
     """
-    #TODO refactor to no?O9[[uypt be kivy dependent
+    #TODO refactor to not be kivy dependent
     #TODO: has- or is a layout?
     #TODO fret indexing when first element is the 'tuning peg'
     #TODO incorporate AudioDevice from guitarTuner
@@ -181,15 +186,13 @@ class Monochord():
     #since each cord plays at most one note at a time, it makes sense for each to have its own AudioDevice object
     #but this does not generalize to any 2D keyboard--at this time I believe that's okay
     # |<tuning interface>|fret0|fret1|...|fret(n-1)|
-    def __init__(self, numberFrets=25, secondHarmonicFret=12, frequency=440):
+    def __init__(self, numberFrets=25, secondHarmonicFret=12, edMultiplier=1, frequency=440):
         self.secondHarmonicFret= secondHarmonicFret
         self.frequency = frequency
         self.numberFrets = 25
         self.frets = [Fret(self,i) for i in range(numberFrets)]#todo add widget
-        self.drawFrets()
-        self.rootIndex = rootIndex
-        self.EDO = ED(2,secondHarmonicFret)
-        self.layout = GridLayout(rows=1,cols=self.numberFrets,row_force_default=True)
+        self.EDO = ED(secondHarmonicFret*edMultiplier)
+        #self.layout = GridLayout(rows=1,cols=self.numberFrets,row_force_default=True)
 
     
     def tune(self, ED2index=None, multiplier=None, frequency=440):
@@ -206,6 +209,7 @@ class Monochord():
     def initializeUI(self):
         #TODO
         raise NotImplementedError
+
     
 
 
@@ -218,7 +222,6 @@ class MainScreen():
         self.strings= [] #a list strings of a list strings[i] of button objects associated [downButton,upButton] with the i'th string
         self.open_notes = []
         self.tuner_col = 0 #reference for position calculation
-
         
         self.tuning_peg_x_offset = 0
         self.prev_tuning_peg_y_offset = 0
@@ -269,10 +272,13 @@ class SquareLatticeDisplay():
         self.root = MainScreen()
         return MainScreen()
 
-class Fretboard:
+class Fretboard(QGridLayout):
     #TODO: does this need a scale?
     #Fretboard <- ordered set of Monochords, each of which may divide a different ed2
     #TODO calculate and generate ED2 for collection of monochords
+    """
+    [lowestString, ... , highestString], so display in reverse order
+    """
     def __init__(self, numberOfMonochords=6, numberFrets=25):
         """
         self.monochords stores fretboard labels as pair (index in nEDO, multiplier)
@@ -280,24 +286,20 @@ class Fretboard:
             A Monochord has numberFrets Frets
         
         """
-
+        super(Fretboard,self).__init__()
         self.monochords = [] #collection of Monochord objects
         
         for string in range(numberOfMonochords):
-            self.monochords += Monochord(numberFrets)
-            for fret in range(numberFrets):
-                #make a child button for each one
-                #set the label to index in a scale
-                #self.monochords[string][fret] = 
-
-                pass
-            #make a 
-        def getMonochord(self, index):
-            return self.monochords[index]
-
-
-        
-        
+            self.monochords += [Monochord(numberFrets)]
+        rows = len(self.monochords)
+        for monochord in range(rows):
+            cols = self.monochords[monochord].numberFrets
+            thisRow = rows - monochord - 1 #reverse order
+            #populate a row
+            for col in range(cols):
+                self.addWidget(self.monochords[thisRow].frets[col], thisRow, col)
+    def getMonochord(self, index):
+        return self.monochords[index]
 
     def intonateAllMonochords(self, secondHarmonicFret):
         for monochord in self.monochords:
