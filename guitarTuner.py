@@ -1,10 +1,11 @@
 from audioDevice import AudioDevice
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QHBoxLayout, QGroupBox, QDialog, QVBoxLayout, QGridLayout
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QHBoxLayout, QGroupBox, QDialog, QVBoxLayout, QGridLayout, QMainWindow, QSizePolicy
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import pyqtSlot, QSize
 
 import numpy as np 
 import time
+import sys
     
 class ED2Instrument():
     def __init__(self,numberOfStrings):
@@ -15,9 +16,10 @@ class ED2Instrument():
 
         self.strings = [] #List that stores lists of playable notes
 
-
     #returns a list of frequency values
     def generateAssignED2(self, nEDO, referenceHz=440, lowestHz=20, highestHz = 3000):
+        """
+        calculates frequency values"""
         #calculate which key the reference is
         key = 0
         if referenceHz < lowestHz:
@@ -71,10 +73,8 @@ class ED2Instrument():
         #notes is list of indices
         #will resize openNotes
         self.openNotes = notes
-        
 
     def tuneHigher(self,stringIndex,checkRange=False):
-        #TODO raise exception?
         if stringIndex >= len(self.openNotes):
             print("string Index out of range")
             return
@@ -106,7 +106,6 @@ class ED:
     """
 
     def __init__(self, nEDO):
-        pass
         self.nEDO = nEDO
         self.centsPerStep = self.centsPerStep()
         self.centsList = self.generateCentsList() #default note names
@@ -128,7 +127,7 @@ class ED:
     def renameNote(self, index, name):
         self.noteNames[index] = name
 
-class Fret(QWidget):
+class Fret(QPushButton):
     #Frets are used for labelling with scale number, ED2 number, etc, updated by the parent Monochord
     #necessary for clicking and displaying on the screen
     #TODO should each fret HAVE an object
@@ -144,23 +143,39 @@ class Fret(QWidget):
         self.fretNumber = fretNumber
         self.indexED2 = indexED2 #TODO: redundant? perhaps the parent should manage this
         self.octaveMultiplier = octaveMultiplier
+        self.setStyleSheet("background-color:#abdfea")
+        self.setMinimumSize(18,18)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
-    def initializeUI(self):
-        #TODO
+        self.setText(str(fretNumber))
+        self.setCheckable(True)
+        self.stateChanged.connect(self.clicked)
+    
+    def clicked(self, event):
+        """propagate message to parent"""
+        if event == 2:
+            self.parentMonochord.addToChecked(self)
+            self.setStyleClickedOn()
+        else:
+            self.parentMonochord.removeFromChecked(self)
+            self.setStyleClickedOff()
+    def setStyleClickedOff(self):
         raise NotImplementedError
-
+    def setStyleClickedOn(self):
+        raise NotImplementedError
+    
     def displayPitchClass(self):      
         #TODO
         raise NotImplementedError
 
     def displayED2Index(self):
-        self.setIconText(str(self.indexED2))
+        self.setText(str(self.indexED2))
 
     def displayNoteName(self):
         """
         parent maintains the note names
         """
-        self.setIconText(self.parent.EDO.noteNames[self.indexED2])
+        self.setText(self.parent.EDO.noteNames[self.indexED2])
     
     def displayHz(self):
         #TODO
@@ -174,12 +189,9 @@ class Fret(QWidget):
         #TODO
         raise NotImplementedError
 
-class Monochord():
+class Monochord(QHBoxLayout):
     """
-
     """
-    #TODO refactor to not be kivy dependent
-    #TODO: has- or is a layout?
     #TODO fret indexing when first element is the 'tuning peg'
     #TODO incorporate AudioDevice from guitarTuner
     #TODO should inherit from Layout and not a widget?
@@ -187,18 +199,29 @@ class Monochord():
     #but this does not generalize to any 2D keyboard--at this time I believe that's okay
     # |<tuning interface>|fret0|fret1|...|fret(n-1)|
     def __init__(self, numberFrets=25, secondHarmonicFret=12, edMultiplier=1, frequency=440):
+        super(Monochord,self).__init__()
         self.secondHarmonicFret= secondHarmonicFret
         self.frequency = frequency
         self.numberFrets = 25
         self.frets = [Fret(self,i) for i in range(numberFrets)]#todo add widget
+        self.checked = set()
+        for fret in self.frets:
+            self.addWidget(fret)
         self.EDO = ED(secondHarmonicFret*edMultiplier)
-        #self.layout = GridLayout(rows=1,cols=self.numberFrets,row_force_default=True)
+        return
 
+    def addToChecked(self, fret):
+        self.checked.add(fret)
+        return
+
+    def removeFromChecked(self, fret):
+        if i in self.checked:
+            self.checked.remove(fret)
+        return
     
     def tune(self, ED2index=None, multiplier=None, frequency=440):
         """
-        PARAMETERS: ED2index, optional
-        
+        PARAMETERS: ED2index, optional       
         """
         self.frequency = frequency
 
@@ -209,71 +232,8 @@ class Monochord():
     def initializeUI(self):
         #TODO
         raise NotImplementedError
-
-    
-
-
-class MainScreen():
-    
-    def __init__(self,**kwargs):
-       
-        self.cols = 5
-        self.add_widget(Label(text="Microtonal n-EDO Guitar Tuner"))
-        self.strings= [] #a list strings of a list strings[i] of button objects associated [downButton,upButton] with the i'th string
-        self.open_notes = []
-        self.tuner_col = 0 #reference for position calculation
-        
-        self.tuning_peg_x_offset = 0
-        self.prev_tuning_peg_y_offset = 0
-
-        self.tuning_button_scalar = 0.125
-        self.tuning_button_x_offset = 5
-        self.tuning_button_y_offset = 5
-        
-        self.open_note_display_size_hint = 0.125
-        self.open_note_display_x_offset = 5
-        #TODO 1 maintain to ED2 instrument
-
-    def add_string_and_its_widgets(self,start_scale_number=0):
-        #TODO update tuner??
-        #TODO 2 update reference to ED2 instrument's openNotes
-        #TODO use self.size to adjust offsets
-        down_button = Button(
-            text='Down',
-            size_hint=(self.tuning_button_scalar,self.tuning_button_scalar),
-            pos = (self.tuning_peg_x_offset, self.prev_tuning_peg_y_offset)
-            )
-
-        open_note_display = Label(
-            #text=str()
-        )
-        up_button = Button(
-            text='Up',
-            size_hint=(self.tuning_button_scalar,self.tuning_button_scalar),
-            pos = (self.tuning_peg_x_offset + self.open_note_display_x_offset, self.prev_tuning_peg_y_offset)
-            )
-        #update y offset
-
-        self.strings += [[down_button,up_button]]
-        #update openNotes
-
-    def buildSquareLatticeDisplay(self):
-        pass#TODO
-    
-class SquareLatticeDisplay():
-    def __init__(self,buttonMatrix):
-        self.built = False
-        self.matrix = buttonMatrix
-        layout = GridLayout(rows=len(self.matrix),cols=len(self.matrix[0]))
-
-        #TODO: finish display layout
-    def build(self):
-        self.built = True
-        self.root = MainScreen()
-        return MainScreen()
-
-class Fretboard(QGridLayout):
-    #TODO: does this need a scale?
+    def 
+class Fretboard(QVBoxLayout):
     #Fretboard <- ordered set of Monochords, each of which may divide a different ed2
     #TODO calculate and generate ED2 for collection of monochords
     """
@@ -284,36 +244,33 @@ class Fretboard(QGridLayout):
         self.monochords stores fretboard labels as pair (index in nEDO, multiplier)
         A Fretboard object has numberOfMonochords Monochords to be tuned independently
             A Monochord has numberFrets Frets
-        
         """
-        super(Fretboard,self).__init__()
+        super(Fretboard, self).__init__()
         self.monochords = [] #collection of Monochord objects
-        
         for string in range(numberOfMonochords):
-            self.monochords += [Monochord(numberFrets)]
-        rows = len(self.monochords)
-        for monochord in range(rows):
-            cols = self.monochords[monochord].numberFrets
-            thisRow = rows - monochord - 1 #reverse order
-            #populate a row
-            for col in range(cols):
-                self.addWidget(self.monochords[thisRow].frets[col], thisRow, col)
+            monochord = Monochord(numberFrets)
+            self.addLayout(monochord)
+            self.monochords += [monochord]
     def getMonochord(self, index):
         return self.monochords[index]
 
     def intonateAllMonochords(self, secondHarmonicFret):
         for monochord in self.monochords:
-            self.secondHarmonicFret = secondHarmonicFret
+            monochord.secondHarmonicFret = secondHarmonicFret
         
 class GuitarTunerApp:
     def __init__(self,xPos=0, yPos=0, width=400, height=400):
         self.app = QApplication(sys.argv)
         self.dimensions = (width, height)
         self.mainWindow = QMainWindow()
-        self.mainWindow.setGeometry(xPos, yPos, dimensions[0], dimensions[1])
+        self.mainWindow.setGeometry(xPos, yPos, self.dimensions[0], self.dimensions[1])
         self.mainWindow.setWindowTitle("Microtonal Guitar Tuner")
         self.mainWindow.show()
-    
+        self.layout = Fretboard()
+        self.fretboardPlaceholder = QWidget()
+        self.fretboardPlaceholder.setLayout(self.layout)
+        self.mainWindow.setCentralWidget(self.fretboardPlaceholder)
+        self.mainWindow.show()
         sys.exit(self.app.exec_())
 
 if __name__ == "__main__":
@@ -324,7 +281,12 @@ if __name__ == "__main__":
     guitar.setAllStrings([50,59,68,77,86,95])
     for i in range(len(guitar.openNotes)):
         print(guitar.ed2[guitar.openNotes[i]])
-    guitar.pluckAllOpenStrings()
+
+    #app = QApplication(sys.argv)
+    tuner = GuitarTunerApp()
+    #sys.exit(app.exec_())
+    
+    #guitar.pluckAllOpenStrings()
     #guitar.playED2()
 
 
